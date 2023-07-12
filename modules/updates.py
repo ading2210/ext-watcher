@@ -30,3 +30,14 @@ def check_update(extension_id, current_version):
   current_parsed = version.parse(current_version)
   
   return latest_parsed > current_parsed
+
+def download_crx(extension_id, output=None):
+  url = get_update_url(extension_id)
+  r = requests.get(url)
+  r.raise_for_status()
+
+  crx_data = r.content
+  if output:
+    with open(output, "wb") as f:
+      f.write(crx_data)
+  return crx_data
