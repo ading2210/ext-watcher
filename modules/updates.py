@@ -3,6 +3,7 @@
 import requests
 import urllib
 import re
+from packaging import version
 
 chrome_version = "114.0.5735.198"
 update_url_base = "https://clients2.google.com/service/update2/crx"
@@ -22,3 +23,10 @@ def get_current_version(extension_id):
   version = re.findall(r"extension_(.+)?\.crx", redirect)[0]
   version = version.replace("_", ".")
   return version
+
+def check_update(extension_id, current_version):
+  latest = get_current_version(extension_id)
+  latest_parsed = version.parse(latest)
+  current_parsed = version.parse(current_version)
+  
+  return latest_parsed > current_parsed

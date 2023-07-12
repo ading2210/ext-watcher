@@ -1,3 +1,3 @@
 from modules import updates
 
-print(updates.get_current_version("cjpalhdlnbpafiamejdnhcphjbkeiagm"))
+print(updates.check_update("cjpalhdlnbpafiamejdnhcphjbkeiagm", "1.50.0"))
