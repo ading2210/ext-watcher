@@ -14,15 +14,18 @@ def get_update_url(extension_id):
   url = update_url_base + params
   return url
 
+def get_version_from_url(url):
+  version = re.findall(r"extension_(.+)?\.crx", url)[0]
+  version = version.replace("_", ".")
+  return version
+
 def get_current_version(extension_id):
   url = get_update_url(extension_id)
   r = requests.get(url, allow_redirects=False)
   r.raise_for_status()
   redirect = r.headers["Location"]
 
-  version = re.findall(r"extension_(.+)?\.crx", redirect)[0]
-  version = version.replace("_", ".")
-  return version
+  return get_version_from_url(redirect)
 
 def check_update(extension_id, current_version):
   latest = get_current_version(extension_id)
@@ -40,4 +43,6 @@ def download_crx(extension_id, output=None):
   if output:
     with open(output, "wb") as f:
       f.write(crx_data)
-  return crx_data
+
+  version = get_version_from_url(r.url)
+  return version, crx_data
