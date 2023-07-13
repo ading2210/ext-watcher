@@ -42,7 +42,7 @@ def process_directory(dir_path, unbundle=False):
       unbundle_file(js_string, item)
       continue
 
-    processed_string = process_file(js_string, unbundle)
+    processed_string = process_file(js_string)
     item.write_text(processed_string)
 
     if item.suffixes == [".min", ".js"]:

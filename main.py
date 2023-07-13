@@ -6,6 +6,9 @@ update_url_base = "https://ext.goguardian.com/stable.xml"
 
 print("Downloading extension...")
 version, crx_data = updates.download_crx(extension_id, base=update_url_base)
+#with open("/tmp/extension-m-3.0.6431.1-stable-crx2.crx", "rb") as f:
+#  crx_data = f.read()
+#version = "3.0.6431.1"
 
 print("Extracting extension...")
 extracted_path = f"cache/{extension_id}/{version}"
@@ -13,7 +16,7 @@ crx.extract_crx(crx_data, extracted_path)
 
 print("Deobfuscating extension source...")
 start = time.time()
-deobfuscate.process_directory(extracted_path, unbundle=True)
+deobfuscate.process_directory(extracted_path)
 end = time.time()
 
 print(f"Deobfuscation took {round(end-start, 2)} seconds.")
