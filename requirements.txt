@@ -1,2 +1,2 @@
-setuptools
-lxml
+requests
+packaging
