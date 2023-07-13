@@ -16,18 +16,33 @@ def process_file(js_string):
   out = child.communicate(input=js_string.encode())
   return out[0].decode()
 
+def unbundle_file(js_string, out_dir):
+  child = subprocess.Popen([webcrack_path, "-o", str(out_dir)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  child.communicate(input=js_string.encode())
+  return
+
 #recursively deobfuscate a directory
 #this will overwrite the files that are processed
-def process_directory(dir_path):
+def process_directory(dir_path, unbundle=False):
   path = pathlib.Path(dir_path)
+  items = []
   for item in path.rglob("*"):
+    items.append(item)
+    
+  for item in items:
     if not item.is_file(): 
       continue
     if not item.suffix == ".js":
       continue
-    
+    print(item)
     js_string = item.read_text()
-    processed_string = process_file(js_string)
+
+    if unbundle:
+      item.unlink()
+      unbundle_file(js_string, item)
+      continue
+
+    processed_string = process_file(js_string, unbundle)
     item.write_text(processed_string)
 
     if item.suffixes == [".min", ".js"]:

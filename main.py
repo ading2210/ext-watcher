@@ -13,7 +13,7 @@ crx.extract_crx(crx_data, extracted_path)
 
 print("Deobfuscating extension source...")
 start = time.time()
-deobfuscate.process_directory(extracted_path)
+deobfuscate.process_directory(extracted_path, unbundle=True)
 end = time.time()
 
 print(f"Deobfuscation took {round(end-start, 2)} seconds.")
