@@ -87,7 +87,7 @@ def compare_directory(old_dir, new_dir):
       deleted_items += deleted_path.rglob("*")
     
     for deleted_item in deleted_items:
-      relative_path_str = deleted_item.relative_to(old_dir)
+      relative_path_str = str(deleted_item.relative_to(old_dir))
       deleted_diffs[relative_path_str] = generate_diff_safe(deleted_item, None)
   
   created_diffs = {}
