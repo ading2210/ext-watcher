@@ -21,24 +21,31 @@ config = json.loads(config_path.read_text())
 #setup logger
 utils.logger.setLevel(logging.DEBUG)
 
-#main program
-logging.info(f"Checking updates for {len(config['watched_extensions'])} extensions...")
+#main program loop
+utils.logger.info(f"Checking updates for {len(config['watched_extensions'])} extensions...")
 for extension_id, options in config["watched_extensions"].items():
-  logging.info(f"Processing extension {extension_id}...")
+  utils.logger.info(f"Processing extension {extension_id}...")
   extension_dir = extensions_dir / extension_id
-  update_url = options.get("update_url")
+  update_url = options.get("update_url") or updates.update_url_base
 
-  if not extension_dir.exists():
-    logging.info(f"Extension is not cached. Downloading and extracting CRX for {extension_id}...")
+  update_needed = True
+  if extension_dir.exists():
+    utils.logger.info(f"Checking updates for {extension_id}...")
+    available_versions = [str(subdir.relative_to(extension_dir)) for subdir in extension_dir.iterdir()]
+    newest_cached_version = updates.max_version(available_versions)
+    update_needed = updates.check_update(extension_id, newest_cached_version, base=update_url)
+
+  if update_needed:
+    utils.logger.info(f"Update is available. Downloading and extracting CRX for {extension_id}...")
     version, crx_data = updates.download_crx(extension_id, base=update_url)
     crx.extract_crx(crx_data, extension_dir / version)
-    logging.info(f"Deobfuscating extension {extension_id}. This may take a while.")
+    utils.logger.info(f"Deobfuscating extension {extension_id}. This may take a while.")
     deobfuscate.process_directory(extension_dir / version)
-    logging.info(f"Done deobfuscating {extension_id}.")
-    continue
+    utils.logger.info(f"Done deobfuscating {extension_id}.")
 
-  available_versions = [str(subdir.relative_to(extension_dir)) for subdir in extension_dir.iterdir()]
-  logging.debug(available_versions)
+  else:
+    utils.logger.info(f"Update is not available for {extension_id}.")
+
 
 '''
 extension_id = "haldlgldplgnggkjaafhelgiaglafanh"
