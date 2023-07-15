@@ -30,5 +30,6 @@ def send_to_webhook(webhook_url, content, username=None, attachments=[]):
     index += 1
   
   r = requests.post(webhook_url, files=files)
+  #send more than 10 attachments
   if total_size > 25_000_000 or index >= 9:
     send_to_webhook(webhook_url, "", username=username, attachments=attachments[index:])

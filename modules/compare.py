@@ -16,7 +16,7 @@ def generate_diff(old_text, new_text, old_filename, new_filename):
   old_split = old_text.split("\n")
   new_split = new_text.split("\n")
 
-  diff_gen = difflib.unified_diff(old_split, new_split, fromfile=old_filename, tofile=new_filename)
+  diff_gen = difflib.unified_diff(old_split, new_split, fromfile=old_filename, tofile=new_filename, lineterm="")
   diff_text = "\n".join(diff_gen)
 
   return diff_text
