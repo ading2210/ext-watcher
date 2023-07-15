@@ -1,16 +1,10 @@
 #compare two extension versions and create a diff
 
+from modules import utils
+
 import difflib
 import filecmp
 import pathlib
-
-def check_utf8(file_path):
-  try:
-    with open(file_path, "r") as f:
-      f.read()
-    return True
-  except UnicodeDecodeError:
-    return False 
 
 def generate_diff(old_text, new_text, old_filename, new_filename):
   old_split = old_text.split("\n")
@@ -63,9 +57,9 @@ def generate_diff_safe(old_file, new_file):
   if new_file and not new_file.is_file():
     return generate_diff("[Cannot generate diff: new target is a directory]", "", str(old_file), str(new_file))
   
-  if old_file and not check_utf8(old_file):
+  if old_file and not utils.check_utf8(old_file):
     return generate_diff("[Cannot generate diff: old file does not contain text]", "", str(old_file), str(new_file))
-  if new_file and not check_utf8(new_file):
+  if new_file and not utils.check_utf8(new_file):
     return generate_diff("[Cannot generate diff: new file does not contain text]", "", str(old_file), str(new_file))
 
   return generate_diff_from_file(old_file, new_file)
