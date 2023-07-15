@@ -2,7 +2,7 @@ import requests
 import json
 
 #send data to webhook as form data, which allows attachments
-def send_to_webhook(webhook_url, content, username=None, attachments={}):
+def send_to_webhook(webhook_url, content, username=None, attachments=[]):
   #handle regular json payload
   payload = {
     "content": content,
@@ -18,8 +18,17 @@ def send_to_webhook(webhook_url, content, username=None, attachments={}):
   files = {
     "payload_json": (None, json.dumps(payload), "application/json")
   }
-  count = 0
-  for filename, contents in attachments.items():
-    files[f"files[{count}]"] = (filename, contents)
+
+  total_size = 0
+  index = 0
+  for filename, contents in attachments:
+    total_size += len(contents)
+    if total_size > 25_000_000 or index >= 10:
+      break
+
+    files[f"files[{index+1}]"] = (filename, contents)
+    index += 1
   
   r = requests.post(webhook_url, files=files)
+  if total_size > 25_000_000 or index >= 9:
+    send_to_webhook(webhook_url, "", username=username, attachments=attachments[index:])
