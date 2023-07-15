@@ -5,6 +5,7 @@ import subprocess
 import shutil
 import io
 import pathlib
+import json
 
 webcrack_path = shutil.which("webcrack")
 if not webcrack_path:
@@ -32,9 +33,13 @@ def process_directory(dir_path, unbundle=False):
   for item in items:
     if not item.is_file(): 
       continue
+    if item.suffix == ".json":
+      json_string = item.read_text()
+      json_pretty = json.dumps(json.loads(json_string), indent=2, sort_keys=True)
+      item.write_text(json_pretty)
+      continue
     if not item.suffix == ".js":
       continue
-    print(item)
     js_string = item.read_text()
 
     if unbundle:
