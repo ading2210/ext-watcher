@@ -1,4 +1,4 @@
-from modules import updates, crx, deobfuscate, utils
+from modules import updates, crx, deobfuscate, utils, extensions
 
 import time
 import pathlib
@@ -19,7 +19,9 @@ if not config_path.exists():
 config = json.loads(config_path.read_text())
 
 #setup logger
-utils.logger.setLevel(logging.DEBUG)
+utils.logger.setLevel(logging.INFO)
+if config["debug"]:
+  utils.logger.setLevel(logging.DEBUG)
 
 #main program loop
 utils.logger.info(f"Checking updates for {len(config['watched_extensions'])} extensions...")
@@ -31,8 +33,7 @@ for extension_id, options in config["watched_extensions"].items():
   update_needed = True
   if extension_dir.exists():
     utils.logger.info(f"Checking updates for {extension_id}...")
-    available_versions = [str(subdir.relative_to(extension_dir)) for subdir in extension_dir.iterdir()]
-    newest_cached_version = updates.max_version(available_versions)
+    newest_cached_version = extensions.get_newest_cached_version(extension_id)
     update_needed = updates.check_update(extension_id, newest_cached_version, base=update_url)
 
   if update_needed:

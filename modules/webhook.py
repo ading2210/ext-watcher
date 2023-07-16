@@ -1,3 +1,5 @@
+#discord webhook wrapper
+
 import requests
 import json
 

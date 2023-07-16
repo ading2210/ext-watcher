@@ -1,4 +1,5 @@
 {
   "watched_extensions": {},
-  "discord_webhooks": []
+  "discord_webhooks": [],
+  "debug": false
 }
