@@ -1,10 +1,9 @@
 #handle the stored extensions
 
-from modules import updates
+from modules import updates, utils
 import pathlib
 
-base_path = pathlib.Path(__file__).resolve().parent.parent
-extensions_path = base_path / "extensions"
+extensions_path = utils.base_dir / "extensions"
 
 def get_newest_cached_version(extension_id):
   extension_dir = extensions_path / extension_id
@@ -12,9 +11,12 @@ def get_newest_cached_version(extension_id):
   newest_cached_version = updates.max_version(available_versions)
   return newest_cached_version
 
+def get_base_extension_dir(extension_id):
+  return extensions_path / extension_id
+
 def get_extension_dir(extension_id):
   newest_version = get_newest_cached_version(extension_id)
-  return extensions_path / extension_id / newest_version
+  return get_base_extension_dir(extension_id) / newest_version
 
 def read_manifest(extension_id):
   extension_dir = get_extension_dir(extension_id)

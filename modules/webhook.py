@@ -1,5 +1,7 @@
 #discord webhook wrapper
 
+from modules import extensions
+
 import requests
 import json
 
@@ -35,3 +37,7 @@ def send_to_webhook(webhook_url, content, username=None, attachments=[]):
   #send more than 10 attachments
   if total_size > 25_000_000 or index >= 9:
     send_to_webhook(webhook_url, "", username=username, attachments=attachments[index:])
+
+def export_comparison(extension_id, comparison, new_version, old_version):
+  manifest = extensions.read_manifest(extension_id)
+  pass

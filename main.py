@@ -1,4 +1,4 @@
-from modules import updates, crx, deobfuscate, utils, extensions
+from modules import updates, crx, deobfuscate, utils, extensions, webhook
 
 import time
 import pathlib
@@ -6,9 +6,9 @@ import json
 import logging
 
 #define paths
-base_path = pathlib.Path(__file__).resolve().parent
-extensions_dir = base_path / "extensions"
-config_dir = base_path / "config"
+base_dir = pathlib.Path(__file__).resolve().parent
+extensions_dir = base_dir / "extensions"
+config_dir = base_dir / "config"
 default_config_path = config_dir / "default.json"
 config_path = config_dir / "config.json"
 
@@ -38,11 +38,19 @@ for extension_id, options in config["watched_extensions"].items():
 
   if update_needed:
     utils.logger.info(f"Update is available. Downloading and extracting CRX for {extension_id}...")
+    old_version = extensions.get_newest_cached_version(extension_id)
     version, crx_data = updates.download_crx(extension_id, base=update_url)
     crx.extract_crx(crx_data, extension_dir / version)
+
+    start = time.time()
     utils.logger.info(f"Deobfuscating extension {extension_id}. This may take a while.")
     deobfuscate.process_directory(extension_dir / version)
-    utils.logger.info(f"Done deobfuscating {extension_id}.")
+    end = time.time()
+    utils.logger.info(f"Deobfuscation took {round(end-start, 2)} seconds.")
+
+    #generate diffs
+    compare_result = compare.compare_directory(extension_dir / old_version, extension_dir / old_version)
+    webhook.export_comparison(extension_id, comparison, version, old_version)
 
   else:
     utils.logger.info(f"Update is not available for {extension_id}.")
