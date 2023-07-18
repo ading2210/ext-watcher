@@ -1,4 +1,4 @@
-from modules import updates, crx, deobfuscate, utils, extensions, webhook
+from modules import updates, crx, deobfuscate, utils, extensions, webhook, compare
 
 import time
 import pathlib
@@ -49,8 +49,9 @@ for extension_id, options in config["watched_extensions"].items():
     utils.logger.info(f"Deobfuscation took {round(end-start, 2)} seconds.")
 
     #generate diffs
-    compare_result = compare.compare_directory(extension_dir / old_version, extension_dir / old_version)
-    webhook.export_comparison(extension_id, comparison, version, old_version)
+    utils.logger.info(f"Sending notification to webhook...")
+    comparison = compare.compare_directory(extension_dir / old_version, extension_dir / version)
+    webhook.export_comparison(config["discord_webhooks"][0], extension_id, comparison, old_version, version)
 
   else:
     utils.logger.info(f"Update is not available for {extension_id}.")

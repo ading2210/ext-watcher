@@ -16,6 +16,6 @@ def check_utf8(file_path):
   except UnicodeDecodeError:
     return False 
 
-def load_template(template_name):
+def get_template(template_name):
   template_path = base_dir / "templates" / template_name
   return template_path.read_text()

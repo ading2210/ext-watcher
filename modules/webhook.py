@@ -1,6 +1,6 @@
 #discord webhook wrapper
 
-from modules import extensions
+from modules import extensions, utils
 
 import requests
 import json
@@ -38,6 +38,19 @@ def send_to_webhook(webhook_url, content, username=None, attachments=[]):
   if total_size > 25_000_000 or index >= 9:
     send_to_webhook(webhook_url, "", username=username, attachments=attachments[index:])
 
-def export_comparison(extension_id, comparison, new_version, old_version):
+def export_comparison(webhook_url, extension_id, comparison, old_version, new_version):
   manifest = extensions.read_manifest(extension_id)
-  pass
+
+  changed_list = []
+  for filename in comparison["changed"]:
+    changed_list.append(f" - {filename}")
+  changed_str = "\n".join(changed_list)
+
+  update_notif_data = {
+    "extension_name": manifest["name"], 
+    "old_version": old_version,
+    "new_version": new_version,
+    "changed_list": changed_str
+  }
+  update_notif = utils.get_template("update_notif.md").format(**update_notif_data)
+  send_to_webhook(webhook_url, update_notif)

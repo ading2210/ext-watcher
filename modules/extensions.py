@@ -2,6 +2,7 @@
 
 from modules import updates, utils
 import pathlib
+import json
 
 extensions_path = utils.base_dir / "extensions"
 
