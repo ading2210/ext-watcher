@@ -38,7 +38,7 @@ def send_to_webhook(webhook_url, content, username=None, attachments=[]):
   if total_size > 25_000_000 or index >= 9:
     send_to_webhook(webhook_url, "", username=username, attachments=attachments[index:])
 
-def export_comparison(webhook_url, extension_id, comparison, old_version, new_version):
+def export_comparison(webhook_url, extension_id, comparison, old_version, new_version, deobfuscation_time):
   manifest = extensions.read_manifest(extension_id)
 
   changed_list = []
@@ -46,11 +46,17 @@ def export_comparison(webhook_url, extension_id, comparison, old_version, new_ve
     changed_list.append(f" - {filename}")
   changed_str = "\n".join(changed_list)
 
+  attachments = []
+  for filename, diff in comparison["changed"].items():
+    attachments.append((filename.replace("/", "_")+".diff", diff))
+
   update_notif_data = {
     "extension_name": manifest["name"], 
     "old_version": old_version,
     "new_version": new_version,
-    "changed_list": changed_str
+    "changed_list": changed_str,
+    "extension_id": extension_id,
+    "deobfuscation_time": deobfuscation_time
   }
   update_notif = utils.get_template("update_notif.md").format(**update_notif_data)
-  send_to_webhook(webhook_url, update_notif)
+  send_to_webhook(webhook_url, update_notif, attachments=attachments)

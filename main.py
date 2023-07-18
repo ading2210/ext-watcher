@@ -36,7 +36,9 @@ for extension_id, options in config["watched_extensions"].items():
     newest_cached_version = extensions.get_newest_cached_version(extension_id)
     update_needed = updates.check_update(extension_id, newest_cached_version, base=update_url)
 
-  if update_needed:
+  if not update_needed:
+    utils.logger.info(f"Update is not available for {extension_id}.")
+  else:
     utils.logger.info(f"Update is available. Downloading and extracting CRX for {extension_id}...")
     old_version = extensions.get_newest_cached_version(extension_id)
     version, crx_data = updates.download_crx(extension_id, base=update_url)
@@ -46,15 +48,13 @@ for extension_id, options in config["watched_extensions"].items():
     utils.logger.info(f"Deobfuscating extension {extension_id}. This may take a while.")
     deobfuscate.process_directory(extension_dir / version)
     end = time.time()
-    utils.logger.info(f"Deobfuscation took {round(end-start, 2)} seconds.")
+    deobfuscation_time = round(end-start, 2)
+    utils.logger.info(f"Deobfuscation took {deobfuscation_time} seconds.")
 
-    #generate diffs
+  if update_needed and old_version:
     utils.logger.info(f"Sending notification to webhook...")
     comparison = compare.compare_directory(extension_dir / old_version, extension_dir / version)
-    webhook.export_comparison(config["discord_webhooks"][0], extension_id, comparison, old_version, version)
-
-  else:
-    utils.logger.info(f"Update is not available for {extension_id}.")
+    webhook.export_comparison(config["discord_webhooks"][0], extension_id, comparison, old_version, version, deobfuscation_time)
 
 
 '''

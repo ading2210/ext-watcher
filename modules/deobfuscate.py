@@ -54,6 +54,3 @@ def process_directory(dir_path, unbundle=False):
 
     processed_string = process_file(js_string)
     item.write_text(processed_string)
-
-    if item.suffixes == [".min", ".js"]:
-      item.rename(item.with_suffix("").with_suffix(".js"))

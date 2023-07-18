@@ -8,6 +8,8 @@ extensions_path = utils.base_dir / "extensions"
 
 def get_newest_cached_version(extension_id):
   extension_dir = extensions_path / extension_id
+  if not extension_dir.exists():
+    return None
   available_versions = [str(subdir.relative_to(extension_dir)) for subdir in extension_dir.iterdir()]
   newest_cached_version = updates.max_version(available_versions)
   return newest_cached_version
