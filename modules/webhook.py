@@ -46,9 +46,9 @@ def format_file_list(file_list):
     formatted_list.append(f" - {filename}")
   return "\n".join(formatted_list)
 
-def format_diffs(diffs_dict, single_file=False):
-  if single_file:
-    return ["\n\n".join(diffs_dict.values())]
+def format_diffs(diffs_dict, name):
+  if config["collapse_diffs"]:
+    return [[name + ".diff", "\n\n".join(diffs_dict.values())]]
   
   attachments = []
   for filename, diff in diffs_dict.items():
@@ -59,7 +59,7 @@ def export_comparison(webhook_url, extension_id, comparison, old_version, new_ve
   manifest = extensions.read_manifest(extension_id)
 
   changed_str = format_file_list(comparison["changed"])
-  attachments = format_diffs(comparison["changed"])
+  attachments = format_diffs(comparison["changed"], "changed")
 
   update_notif_data = {
     "extension_name": manifest["name"], 
@@ -73,12 +73,12 @@ def export_comparison(webhook_url, extension_id, comparison, old_version, new_ve
 
   if comparison["created"]:
     created_str = format_file_list(comparison["created"])
-    attachments += format_diffs(comparison["created"])
+    attachments += format_diffs(comparison["created"], "created")
     update_notif += utils.get_template("new_files.md").format(new_files=created_str)
   
   if comparison["deleted"]:
     deleted_str = format_file_list(comparison["deleted"])
-    attachments += format_diffs(comparison["deleted"])
+    attachments += format_diffs(comparison["deleted"], "deleted")
     update_notif += utils.get_template("deleted_files.md").format(deleted_files=deleted_str)
 
   send_to_webhook(webhook_url, update_notif, attachments=attachments)

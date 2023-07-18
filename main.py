@@ -43,8 +43,8 @@ for extension_id, options in config["watched_extensions"].items():
   if update_needed and old_version:
     utils.logger.info(f"Sending notification to webhook...")
     comparison = compare.compare_directory(extension_dir / old_version, extension_dir / version)
-    for webhook in config["discord_webhooks"]:
-      webhook.export_comparison(webhook, extension_id, comparison, old_version, version, deobfuscation_time)
+    for webhook_url in config["discord_webhooks"]:
+      webhook.export_comparison(webhook_url, extension_id, comparison, old_version, version, deobfuscation_time)
 
 
 '''
