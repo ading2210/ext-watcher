@@ -3,10 +3,12 @@ This is a Python script which provides update notifications for Chrome extension
 
 ## Usage:
 1. Clone this repository.
-2. Run `python3 main.py` to generate the config file.
-3. Edit `config/config.json`. The configuration options are detailed in the next section.
-4. Run `python3 main.py` to download the extensions you configured.
-5. Put `main.py` on a cron job to run it repeatedly. 
+2. Install [webcrack](https://github.com/j4k0xb/webcrack) by running `npm install -g webcrack`. Make sure it is in your PATH.
+3. Install this project's dependencies by running `pip3 install -r requirements.txt`.
+4. Run `python3 main.py` to generate the config file.
+5. Edit `config/config.json`. The configuration options are detailed in the next section.
+6. Run `python3 main.py` to download the extensions you configured. Running this file in the future will also check for updates and report them to the configured webhook.
+7. (optional) Put `main.py` on a cron job to run it repeatedly. 
 
 ## Configuration:
 - `watched_extensions` - A dict of extensions that the script will check for updates, with the extension ID as the key and any options as the value.
@@ -15,8 +17,9 @@ This is a Python script which provides update notifications for Chrome extension
 - `debug` - If this is set to true, the logging level will be set to `logging.DEBUG` instead of `logging.INFO`.
 
 ### Extension Options:
-Extension options should be specified as a dict. All options in this list are optional.
+Extension options should be specified as a dict. All settings in this list are optional.
  - `update_url` - The custom update server for the extension. This defaults to Google's official servers.
+ - `name_override` - Overrides the extension's name.
 
 ### Example Config File:
 ```json
@@ -29,7 +32,9 @@ Extension options should be specified as a dict. All options in this list are op
       "update_url": "https://extensions.securly.com/extensions.xml"
     },
     "pgmjaihnmedpcdkjcgigocogcbffgkbn": {},
-    "iheobagjkfklnlikgihanlhcddjoihkg": {},
+    "iheobagjkfklnlikgihanlhcddjoihkg": {
+      "name_override": "Securly for Chromebooks (old)"
+    },
     "ddfbkhpmcdbciejenfcolaaiebnjcbfc": {}
   },
   "discord_webhooks": [
@@ -42,6 +47,7 @@ Extension options should be specified as a dict. All options in this list are op
 
 ## Copyright Notice:
 
+This project uses [webcrack](https://github.com/j4k0xb/webcrack) for the deobfuscation of JS files. 
 ```
 ading2210/ext-watcher: A Python program for Chrome extension update notifications.
 Copyright (C) 2023 ading2210

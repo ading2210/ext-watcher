@@ -62,7 +62,7 @@ def export_comparison(webhook_url, extension_id, comparison, old_version, new_ve
   attachments = format_diffs(comparison["changed"], "changed")
 
   update_notif_data = {
-    "extension_name": manifest["name"], 
+    "extension_name": config["watched_extensions"][extension_id].get("name_override") or manifest["name"], 
     "old_version": old_version,
     "new_version": new_version,
     "changed_list": changed_str,
