@@ -59,4 +59,26 @@ def export_comparison(webhook_url, extension_id, comparison, old_version, new_ve
     "deobfuscation_time": deobfuscation_time
   }
   update_notif = utils.get_template("update_notif.md").format(**update_notif_data)
+
+  #todo: refactor to avoid duplicated code
+  if comparison["created"]:
+    created_list = []
+    for filename in comparison["created"]:
+      created_list.append(f" - {filename}")
+    created_str = "\n".join(created_list)
+
+    for filename, diff in comparison["created"].items():
+      attachments.append((filename.replace("/", "_")+".diff", diff))
+    update_notif += utils.get_template("new_files.md").format(new_files=created_str)
+  
+  if comparison["deleted"]:
+    deleted_list = []
+    for filename in comparison["deleted"]:
+      deleted_list.append(f" - {filename}")
+    deleted_str = "\n".join(deleted_list)
+
+    for filename, diff in comparison["deleted"].items():
+      attachments.append((filename.replace("/", "_")+".diff", diff))
+    update_notif += utils.get_template("deleted_files.md").format(deleted_files=deleted_str)
+
   send_to_webhook(webhook_url, update_notif, attachments=attachments)
