@@ -1,5 +1,6 @@
 {
   "watched_extensions": {},
   "discord_webhooks": [],
+  "collapse_diffs": false,
   "debug": false
 }

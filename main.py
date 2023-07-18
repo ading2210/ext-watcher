@@ -5,18 +5,7 @@ import pathlib
 import json
 import logging
 
-#define paths
-base_dir = pathlib.Path(__file__).resolve().parent
-extensions_dir = base_dir / "extensions"
-config_dir = base_dir / "config"
-default_config_path = config_dir / "default.json"
-config_path = config_dir / "config.json"
-
-#read config
-if not config_path.exists():
-  config_path.write_text(default_config_path.read_text())
-  raise FileNotFoundError("config/config.json needs to be modified")
-config = json.loads(config_path.read_text())
+config = utils.config
 
 #setup logger
 utils.logger.setLevel(logging.INFO)
@@ -27,7 +16,7 @@ if config["debug"]:
 utils.logger.info(f"Checking updates for {len(config['watched_extensions'])} extensions...")
 for extension_id, options in config["watched_extensions"].items():
   utils.logger.info(f"Processing extension {extension_id}...")
-  extension_dir = extensions_dir / extension_id
+  extension_dir = utils.extensions_dir / extension_id
   update_url = options.get("update_url") or updates.update_url_base
 
   update_needed = True
@@ -54,7 +43,8 @@ for extension_id, options in config["watched_extensions"].items():
   if update_needed and old_version:
     utils.logger.info(f"Sending notification to webhook...")
     comparison = compare.compare_directory(extension_dir / old_version, extension_dir / version)
-    webhook.export_comparison(config["discord_webhooks"][0], extension_id, comparison, old_version, version, deobfuscation_time)
+    for webhook in config["discord_webhooks"]:
+      webhook.export_comparison(webhook, extension_id, comparison, old_version, version, deobfuscation_time)
 
 
 '''

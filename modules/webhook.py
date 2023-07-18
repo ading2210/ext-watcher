@@ -5,6 +5,8 @@ from modules import extensions, utils
 import requests
 import json
 
+config = utils.config
+
 #send data to webhook as form data, which allows attachments
 def send_to_webhook(webhook_url, content, username=None, attachments=[]):
   #handle regular json payload
@@ -38,17 +40,26 @@ def send_to_webhook(webhook_url, content, username=None, attachments=[]):
   if total_size > 25_000_000 or index >= 9:
     send_to_webhook(webhook_url, "", username=username, attachments=attachments[index:])
 
+def format_file_list(file_list):
+  formatted_list = []
+  for filename in file_list:
+    formatted_list.append(f" - {filename}")
+  return "\n".join(formatted_list)
+
+def format_diffs(diffs_dict, single_file=False):
+  if single_file:
+    return ["\n\n".join(diffs_dict.values())]
+  
+  attachments = []
+  for filename, diff in diffs_dict.items():
+    attachments.append((filename.replace("/", "_")+".diff", diff))
+  return attachments
+
 def export_comparison(webhook_url, extension_id, comparison, old_version, new_version, deobfuscation_time):
   manifest = extensions.read_manifest(extension_id)
 
-  changed_list = []
-  for filename in comparison["changed"]:
-    changed_list.append(f" - {filename}")
-  changed_str = "\n".join(changed_list)
-
-  attachments = []
-  for filename, diff in comparison["changed"].items():
-    attachments.append((filename.replace("/", "_")+".diff", diff))
+  changed_str = format_file_list(comparison["changed"])
+  attachments = format_diffs(comparison["changed"])
 
   update_notif_data = {
     "extension_name": manifest["name"], 
@@ -60,25 +71,14 @@ def export_comparison(webhook_url, extension_id, comparison, old_version, new_ve
   }
   update_notif = utils.get_template("update_notif.md").format(**update_notif_data)
 
-  #todo: refactor to avoid duplicated code
   if comparison["created"]:
-    created_list = []
-    for filename in comparison["created"]:
-      created_list.append(f" - {filename}")
-    created_str = "\n".join(created_list)
-
-    for filename, diff in comparison["created"].items():
-      attachments.append((filename.replace("/", "_")+".diff", diff))
+    created_str = format_file_list(comparison["created"])
+    attachments += format_diffs(comparison["created"])
     update_notif += utils.get_template("new_files.md").format(new_files=created_str)
   
   if comparison["deleted"]:
-    deleted_list = []
-    for filename in comparison["deleted"]:
-      deleted_list.append(f" - {filename}")
-    deleted_str = "\n".join(deleted_list)
-
-    for filename, diff in comparison["deleted"].items():
-      attachments.append((filename.replace("/", "_")+".diff", diff))
+    deleted_str = format_file_list(comparison["deleted"])
+    attachments += format_diffs(comparison["deleted"])
     update_notif += utils.get_template("deleted_files.md").format(deleted_files=deleted_str)
 
   send_to_webhook(webhook_url, update_notif, attachments=attachments)
