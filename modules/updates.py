@@ -42,7 +42,6 @@ def get_current_version(extension_id, base=update_url_base):
 
   else:
     redirect = r.headers["Location"]
-    print(redirect)
     version = re.findall(r"[A-Z]{32}_(.+)?\.crx", redirect)[0]
     version = version.replace("_", ".")
   
