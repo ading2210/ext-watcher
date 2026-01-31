@@ -59,7 +59,7 @@ def download_crx(extension_id, output=None, base=update_url_base):
   r = requests.get(url)
   r.raise_for_status()
 
-  if r.headers["Content-Type"].startswith("text/xml"):
+  if r.headers["Content-Type"].startswith("text/xml") or r.headers["Content-Type"].startswith("application/xml"):
     redirect, version = parse_updatecheck_xml(r.text, extension_id)
     r = requests.get(redirect)
   else:
